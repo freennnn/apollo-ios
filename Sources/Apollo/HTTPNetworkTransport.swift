@@ -24,6 +24,12 @@ public struct GraphQLHTTPResponseError: Error, LocalizedError {
   public let response: HTTPURLResponse
   public let kind: ErrorKind
   
+    public init(body: Data?, response: HTTPURLResponse, kind: ErrorKind) {
+        self.body = body
+        self.response = response
+        self.kind = kind
+    }
+    
   public var bodyDescription: String {
     if let body = body {
       if let description = String(data: body, encoding: response.textEncoding ?? .utf8) {

@@ -27,7 +27,7 @@ public enum CachePolicy {
 public typealias OperationResultHandler<Operation: GraphQLOperation> = (_ result: GraphQLResult<Operation.Data>?, _ error: Error?) -> Void
 
 /// The `ApolloClient` class provides the core API for Apollo. This API provides methods to fetch and watch queries, and to perform mutations.
-public class ApolloClient {
+open class ApolloClient {
   let networkTransport: NetworkTransport
   let store: ApolloStore
   public var cacheKeyForObject: CacheKeyForObject? {
