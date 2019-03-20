@@ -2,12 +2,11 @@
 title: Installation
 ---
 
-Apollo iOS requires Xcode 8, which you can install from the [Mac App Store](https://itunes.apple.com/en/app/xcode/id497799835?mt=12).
+Apollo iOS requires the latest Xcode, which can be installed from the [Mac App Store](http://appstore.com/mac/apple/xcode).
 
 Follow along with these steps (described in detail below) to use Apollo iOS in your app:
 
 1. Install the Apollo framework into your project and link it to your application target
-1. Install `apollo-codegen` globally through npm
 1. Add a code generation build step to your target
 1. Add a schema file to your target directory
 1. Build your target
@@ -25,15 +24,15 @@ You can install `Apollo.framework` into your project using Carthage, CocoaPods, 
 
 1. Run `carthage update`.
 
-1. Drag and drop `Apollo.framework` from the `Carthage/Build/iOS` folder to the “Linked Frameworks and Libraries” section of your application targets’ “General” settings tab.
+1. Drag and drop `Apollo.framework` from the `Carthage/Build/iOS` folder to the "Linked Frameworks and Libraries" section of your application targets' "General" settings tab.
 
-1. On your application targets’ “Build Phases” settings tab, click the “+” icon and choose “New Run Script Phase”. Create a Run Script in which you specify your shell (ex: `bin/sh`), add the following contents to the script area below the shell:
+1. On your application targets’ "Build Phases" settings tab, click the "+" icon and choose "New Run Script Phase". Create a Run Script in which you specify your shell (ex: `bin/sh`), add the following contents to the script area below the shell:
 
  ```sh
  /usr/local/bin/carthage copy-frameworks
  ```
 
- and add the paths to the frameworks you want to use under “Input Files”, e.g.:
+ and add the paths to the frameworks you want to use under "Input Files", e.g.:
 
  ```
  $(SRCROOT)/Carthage/Build/iOS/Apollo.framework
@@ -58,19 +57,11 @@ You can install `Apollo.framework` into your project using Carthage, CocoaPods, 
 
 You can also manually clone the [`apollo-ios` repository](https://github.com/apollostack/apollo-ios), drag `Apollo.xcodeproj` into your project or workspace, add a dependency on `Apollo.framework` to your target.
 
-<h2 id="installing-apollo-codegen">Installing `apollo-codegen`</h2>
-
-You will have to install the `apollo-codegen` command globally through npm:
-
-```sh
-npm install -g apollo-codegen
-```
-
 <h2 id="adding-build-step">Adding a code generation build step</h2>
 
-In order to invoke `apollo-codegen` as part of the Xcode build process, create a build step that runs before “Compile Sources”.
+In order to invoke `apollo` as part of the Xcode build process, create a build step that runs before "Compile Sources".
 
-1. On your application targets’ “Build Phases” settings tab, click the “+” icon and choose “New Run Script Phase”. Create a Run Script, change its name to “Generate Apollo GraphQL API” and drag it just above “Compile Sources”. Then add the following contents to the script area below the shell:
+1. On your application targets’ "Build Phases" settings tab, click the "+" icon and choose "New Run Script Phase". Create a Run Script, change its name to "Generate Apollo GraphQL API" and drag it just above "Compile Sources". Then add the following contents to the script area below the shell:
 
 for iOS Project
 ```sh
@@ -82,7 +73,7 @@ if [ -z "$APOLLO_FRAMEWORK_PATH" ]; then
 fi
 
 cd "${SRCROOT}/${TARGET_NAME}"
-$APOLLO_FRAMEWORK_PATH/check-and-run-apollo-codegen.sh generate $(find . -name '*.graphql') --schema schema.json --output API.swift
+$APOLLO_FRAMEWORK_PATH/check-and-run-apollo-cli.sh codegen:generate --queries="$(find . -name '*.graphql')" --schema=schema.json API.swift
 ```
 for macOS Project
 ```sh
@@ -94,12 +85,12 @@ exit 1
 fi
 
 cd "${SRCROOT}/${TARGET_NAME}"
-$APOLLO_FRAMEWORK_PATH/Versions/Current/Resources/check-and-run-apollo-codegen.sh generate $(find . -name '*.graphql') --schema schema.json --output API.swift
+$APOLLO_FRAMEWORK_PATH/Versions/Current/Resources/check-and-run-apollo-cli.sh codegen:generate --queries="$(find . -name '*.graphql')" --schema=schema.json API.swift
 ```
 
 
 
-The script above will invoke `apollo-codegen` through the `check-and-run-apollo-codegen.sh` wrapper script, which is actually contained in the `Apollo.framework` bundle. The main reason for this is to check whether the version of `apollo-codegen` installed on your system is compatible with the framework version installed in your project, and to warn you if it isn't. Without this check, you could end up generating code that is incompatible with the runtime code contained in the framework.
+The script above will invoke `apollo` through the `check-and-run-apollo-cli.sh` wrapper script, which is actually contained in the `Apollo.framework` bundle. The main reason for this is to check whether the version of `apollo` installed on your system is compatible with the framework version installed in your project, and to warn you if it isn't. Without this check, you could end up generating code that is incompatible with the runtime code contained in the framework.
 
 <h2 id="adding-schema">Adding a schema file to your target directory</h2>
 
@@ -109,7 +100,7 @@ Apollo iOS requires a GraphQL schema file as input to the code generation proces
 
 <h2 id="building-target">Build your target</h2>
 
-At this point, you can try building your target in Xcode.  This will verify that the `schema.json` file can be found by the `apollo-codegen` script created above, otherwise you'll get a build error such as:
+At this point, you can try building your target in Xcode.  This will verify that the `schema.json` file can be found by the `apollo` script created above, otherwise you'll get a build error such as:
 > Cannot find GraphQL schema file [...]
 
 <h2 id="adding-generated-api">Adding the generated API file to your target</h2>
